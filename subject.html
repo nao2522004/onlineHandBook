@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Môn học</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <h1 id="subject-title">Môn học</h1>
+    </header>
+
+    <main>
+        <h2>Ghi chú và tài liệu</h2>
+        <ul id="note-list" class="note-list">
+            <!-- Danh sách ghi chú sẽ được hiển thị ở đây -->
+        </ul>
+        <div class="button">
+            <button class="btn btn-primary" id="add-note-btn">Thêm ghi chú mới</button>
+            <a class="btn btn-primary" href="index.html"> Quay lại </a>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2023 Sổ tay trực tuyến cho Người học
+    </footer>
+
+    <div id="note-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <label for="note-title">Tiêu đề ghi chú:</label>
+            <input type="text" id="note-title" placeholder="Nhập tiêu đề...">
+            <label for="note-content">Nội dung:</label>
+            <textarea id="note-content" placeholder="Nhập nội dung..."></textarea>
+            <button class="btn btn-primary" onclick="addNote()">Thêm ghi chú</button>
+        </div>
+    </div>
+
+    <script>
+        var notes = [];
+
+        // Thêm đoạn mã xử lý logic cho trang môn học
+        document.getElementById('add-note-btn').addEventListener('click', openModal);
+
+        function openModal() {
+            var modal = document.getElementById('note-modal');
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            var modal = document.getElementById('note-modal');
+            modal.style.display = 'none';
+        }
+
+        function addNote() {
+            var titleInput = document.getElementById('note-title');
+            var contentInput = document.getElementById('note-content');
+
+            var title = titleInput.value.trim();
+            var content = contentInput.value.trim();
+
+            if (title !== '' && content !== '') {
+                // Thêm ghi chú mới vào danh sách
+                notes.push({ title: title, content: content });
+
+                // Lưu danh sách ghi chú vào Local Storage
+                saveNotesToLocal();
+
+                // Đóng hộp thoại và làm mới danh sách ghi chú
+                closeModal();
+                displayNotes();
+            }
+        }
+
+        // Hàm lưu danh sách ghi chú vào Local Storage
+        function saveNotesToLocal() {
+            localStorage.setItem('notes', JSON.stringify(notes));
+        }
+
+        // Hàm hiển thị danh sách ghi chú
+        function displayNotes() {
+            var noteList = document.getElementById('note-list');
+            noteList.innerHTML = '';
+
+            for (var i = 0; i < notes.length; i++) {
+                var newNote = document.createElement('li');
+                newNote.innerHTML = `<strong>${notes[i].title}</strong>: ${notes[i].content}`;
+
+                // Thêm nút hoàn thành và sự kiện xóa
+                var completeButton = document.createElement('button');
+                completeButton.textContent = 'Hoàn thành';
+                completeButton.onclick = function (index) {
+                    return function () {
+                        deleteNote(index);
+                    };
+                }(i);
+
+                newNote.appendChild(completeButton);
+                noteList.appendChild(newNote);
+            }
+        }
+
+        // Hàm xóa ghi chú theo chỉ mục
+        function deleteNote(index) {
+            var confirmDelete = confirm('Bạn có chắc chắn muốn xóa ghi chú này?');
+            if (confirmDelete) {
+                // Xóa ghi chú khỏi mảng notes
+                notes.splice(index, 1);
+
+                // Lưu danh sách ghi chú vào Local Storage
+                saveNotesToLocal();
+
+                // Hiển thị lại danh sách ghi chú
+                displayNotes();
+            }
+        }
+
+        // Hàm lấy danh sách ghi chú từ Local Storage khi trang được tải
+        function loadNotesFromLocal() {
+            var storedNotes = localStorage.getItem('notes');
+            if (storedNotes) {
+                notes = JSON.parse(storedNotes);
+            }
+
+            // Hiển thị danh sách ghi chú khi trang được tải
+            displayNotes();
+        }
+
+        // Gọi hàm này khi trang được tải để nạp danh sách ghi chú từ Local Storage
+        loadNotesFromLocal();
+    </script>
+</body>
+
+</html>
